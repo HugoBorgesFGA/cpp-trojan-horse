@@ -2,8 +2,8 @@ add_executable(server
 
 	app.cpp
 	
-	model/server.cpp
 	model/connection.cpp
+	model/socket/server.cpp
 	model/loggers/console-logger.cpp
 
 )

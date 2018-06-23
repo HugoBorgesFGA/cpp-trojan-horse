@@ -5,8 +5,8 @@
 #include <map>
 #include <list>
 
-#include "event.hpp"
-#include "connection.hpp"
+#include "model/event.hpp"
+#include "model/connection.hpp"
 
 using namespace std;
 
@@ -17,10 +17,13 @@ private:
 
 	uint32_t seed;
 	map<uint32_t, Connection&> connections;
+	uint16_t port;
 
 public:
 
 	SocketServer(uint16_t port);
+
+	uint16_t get_port();
 
 	void start();
 	void stop();
