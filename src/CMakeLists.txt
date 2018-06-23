@@ -4,6 +4,8 @@ add_executable(server
 	
 	model/server.cpp
 	model/connection.cpp
+	model/loggers/console-logger.cpp
+
 )
 
 # set (LIBS hal core)
