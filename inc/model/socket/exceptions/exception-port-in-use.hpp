@@ -16,24 +16,25 @@ class ExceptionPortInUse : public std::exception
 {
 private:
 
+	std::string message;
 	uint16_t port;
 
 public:
 
 	ExceptionPortInUse(uint16_t port)
 	{
+		std::stringstream ss_builder;
 
 		this->port = port;
+		ss_builder << "The chosen port (" << this->port << ") is already in use!";
+
+		this->message = ss_builder.str();
 	}
 
-	virtual const char* what() const throw()
+	const char* what() const throw()
 	{
 
-		std::stringstream description;
-
-		description << "The chosen TCP port (" << this->port << ") is already in use";
-
-		return description.str().c_str();
+		return this->message.c_str();
 	}
 };
 

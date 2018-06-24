@@ -4,25 +4,25 @@
 #include "config.hpp"
 
 #include "model/socket/server.hpp"
-#include "model/socket/exceptions/exception-port-in-use.hpp"
-
 #include "model/loggers/console-logger.hpp"
 
 using namespace std;
 
 int main(int argc, char *argv[]){
 
-	SocketServer server(CONFIG_PORT);
 	Logger *logger_app = new ConsoleLogger("APP", CONFIG_DEBUG);
+	Logger *logger_server = new ConsoleLogger("SERVER", CONFIG_DEBUG);
+
+	SocketServer server(CONFIG_PORT, *logger_server);
 
 	try
 	{
 
 		server.start();
 	}
-	catch(ExceptionPortInUse &ex)
+	catch(exception &ex)
 	{
-		logger_app->error(ex.what());
+		logger_app->error(string(ex.what()));
 	}
 
 	return 0;
