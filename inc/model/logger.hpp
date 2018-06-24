@@ -19,11 +19,11 @@ protected:
 	string module_name;
 	bool is_debug_enable;
 
-	string _default_log_line(string module_name, string message)
+	string _default_log_line(string module_name, string type, string message)
 	{
 		stringstream log_line;
 
-		log_line << "[" << module_name << "] : " << message;
+		log_line << "[" << type << "] " << module_name << " : " << message;
 
 		return log_line.str();
 	}
