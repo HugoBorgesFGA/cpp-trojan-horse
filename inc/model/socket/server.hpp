@@ -2,7 +2,9 @@
 #define H_SOCKET_SERVER
 
 #include <cstdint>
+#include <map>
 #include <list>
+#include <tuple>
 
 #include <unistd.h>
 #include <stdio.h>
@@ -12,8 +14,7 @@
 #include <string.h>
 
 #include "model/event.hpp"
-#include "model/connection.hpp"
-
+#include "model/socket/connection.hpp"
 #include "model/loggers/console-logger.hpp"
 
 using namespace std;
@@ -23,14 +24,18 @@ class SocketServer
 
 private:
 
-	uint32_t seed;
-	map<uint32_t, Connection&> connections;
 	uint16_t port;
 
 	uint32_t socket_fd, socket_opt;
 	struct sockaddr_in address;
 
+	bool is_running;
+
 	Logger &logger;
+
+	map<uint32_t, Connection> connections;
+	void connections_add(Connection connection);
+	void connections_remove(Connection connection);
 
 public:
 
@@ -42,8 +47,10 @@ public:
 	void stop();
 	list<uint32_t> get_connections();
 
-	Event<uint32_t> on_connection_open;
-	Event<uint32_t> on_connection_close;
+	Event<tuple<Connection, string>> on_receive;
+	Event<Connection> on_connection_open;
+	Event<Connection> on_connection_close;
+
 	Event<string> on_start_listening;
 	Event<string> on_stop_listening;
 };

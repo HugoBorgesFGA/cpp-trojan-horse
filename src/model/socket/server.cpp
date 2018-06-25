@@ -6,6 +6,7 @@
  */
 
 #include "model/socket/server.hpp"
+#include "model/socket/connection.hpp"
 #include "model/socket/exceptions/exception-socket-not-available.hpp"
 #include "model/socket/exceptions/exception-port-in-use.hpp"
 #include "model/socket/exceptions/exception-cannot-listen.hpp"
@@ -18,6 +19,7 @@ using namespace std;
 SocketServer::SocketServer(uint16_t port, Logger &logger) : logger(logger)
 {
 
+	this->is_running = false;
 	this->socket_opt = 0;
 	this->socket_fd = 0;
 	this->port = port;
@@ -58,21 +60,40 @@ void SocketServer::start()
 		throw ExceptionCannotListen();
 	}
 
-	int addrlen = sizeof(this->address);
-	int new_socket = accept(this->socket_fd, (struct sockaddr *) &address, (socklen_t*) &addrlen);
+	this->on_start_listening.fire("Started listening");
 
-	if (new_socket < 0)
+	this->is_running = true;
+
+	while(this->is_running)
 	{
-		throw ExceptionCannotAcceptConnections();
+
+		int addrlen = sizeof(this->address);
+		int connection_fd = accept(this->socket_fd, (struct sockaddr *) &address, (socklen_t*) &addrlen);
+
+		if (connection_fd < 0)
+		{
+			throw ExceptionCannotAcceptConnections();
+		}
+
+		// Create and bind events
+		Connection connection(connection_fd, address);
+		connection.on_data_received = this->on_receive;
+
+		this->connections_add(connection);
+
+		this->on_connection_open.fire(connection);
+		connection.detach();
 	}
+}
 
-	char buffer[1024];
+void SocketServer::connections_add(Connection connection)
+{
+	this->connections.insert(pair<uint32_t, Connection>(connection.get_fd(), connection));
+}
 
-	uint32_t read_bytes = read( new_socket , buffer, sizeof(buffer));
-	this->logger.debug(string(buffer));
-
-	char accept_msg[] = "You just connected to server...";
-	send(new_socket , accept_msg , strlen(accept_msg) , 0);
+void SocketServer::connections_remove(Connection connection)
+{
+	this->connections.erase(connection.get_fd());
 }
 
 void SocketServer::stop()
@@ -82,5 +103,12 @@ void SocketServer::stop()
 
 list<uint32_t> SocketServer::get_connections()
 {
+	list<uint32_t> result;
 
+	for(auto const& imap: this->connections)
+	{
+	    result.push_back(imap.first);
+	}
+
+	return result;
 }
