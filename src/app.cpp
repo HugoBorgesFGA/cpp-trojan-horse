@@ -1,24 +1,55 @@
 #include <cstdint>
 #include <iostream>
+#include <sstream>
+#include <tuple>
 
 #include "config.hpp"
 
+#include "model/socket/connection.hpp"
 #include "model/socket/server.hpp"
 #include "model/loggers/console-logger.hpp"
 
 using namespace std;
 
+Logger *logger_app;
+Logger *logger_server;
+
+SocketServer *server;
+
+// When a connection is open, exec the following method
+void on_connection_open_callback(Connection &connection){
+
+	stringstream ss_message;
+	ss_message << "New connection (" << connection.get_fd() << ") opened...";
+
+	logger_app->info(ss_message.str());
+}
+
+// When receive something
+void on_receive_something_from_client_callback(tuple<Connection, string> args){
+
+	stringstream ss_message;
+
+	Connection connection = get<0>(args);
+	string message = get<1>(args);
+
+	ss_message << "Connection (" << connection.get_fd() << ") sent: " << message;
+
+	logger_app->info(ss_message.str());
+}
+
 int main(int argc, char *argv[]){
 
-	Logger *logger_app = new ConsoleLogger("APP", CONFIG_DEBUG);
-	Logger *logger_server = new ConsoleLogger("SERVER", CONFIG_DEBUG);
+	logger_app = new ConsoleLogger("APP", CONFIG_DEBUG);
+	logger_server = new ConsoleLogger("SERVER", CONFIG_DEBUG);
 
-	SocketServer server(CONFIG_PORT, *logger_server);
+	server = new SocketServer(CONFIG_PORT, *logger_server);
+	server->on_connection_open.add(on_connection_open_callback);
+	server->on_receive.add(on_receive_something_from_client_callback);
 
 	try
 	{
-
-		server.start();
+		server->start();
 	}
 	catch(exception &ex)
 	{

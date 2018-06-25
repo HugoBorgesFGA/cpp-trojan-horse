@@ -36,7 +36,7 @@ public:
 		return subscription_memo;
 	}
 
-	void fire(T &arg)
+	void fire(T arg)
 	{
 
 		for (auto const& x : subscriptions) x.second(arg);
