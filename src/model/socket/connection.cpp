@@ -12,8 +12,15 @@
 Connection::Connection(uint32_t connection_fd, struct sockaddr_in address)
 {
 
+	this->buffer = new uint8_t[CONFIG_CONNECTION_BUFFER_SIZE];
 	this->connection_fd = connection_fd;
 	this->address = address;
+}
+
+Connection::~Connection()
+{
+
+	delete this->buffer;
 }
 
 uint32_t Connection::get_fd()
@@ -32,7 +39,7 @@ void Connection::_thread_function()
 {
 	while(true){
 
-		uint32_t read_bytes = read(this->get_fd() , this->buffer, sizeof(this->buffer));
+		uint32_t read_bytes = read(this->get_fd() , this->buffer, CONFIG_CONNECTION_BUFFER_SIZE);
 		if (read_bytes == 0) {
 			cout << "Ending thread..." << endl;
 			break;
@@ -43,8 +50,7 @@ void Connection::_thread_function()
 		string received = string((char *) this->buffer);
 		this->buffer[0] = '\0';
 
-		tuple<Connection, string> args = make_tuple(*this, received);
-		this->on_data_received.fire(args);
+		cout << "Connection (" << this->get_fd() << ") received: " << received;
 	}
 }
 

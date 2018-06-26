@@ -1,7 +1,6 @@
 #include <cstdint>
 #include <iostream>
 #include <sstream>
-#include <tuple>
 
 #include "config.hpp"
 
@@ -26,17 +25,7 @@ void on_connection_open_callback(Connection &connection){
 }
 
 // When receive something
-void on_receive_something_from_client_callback(tuple<Connection, string> args){
 
-	stringstream ss_message;
-
-	Connection connection = get<0>(args);
-	string message = get<1>(args);
-
-	ss_message << "Connection (" << connection.get_fd() << ") sent: " << message;
-
-	logger_app->info(ss_message.str());
-}
 
 int main(int argc, char *argv[]){
 
@@ -45,7 +34,6 @@ int main(int argc, char *argv[]){
 
 	server = new SocketServer(CONFIG_PORT, *logger_server);
 	server->on_connection_open.add(on_connection_open_callback);
-	server->on_receive.add(on_receive_something_from_client_callback);
 
 	try
 	{

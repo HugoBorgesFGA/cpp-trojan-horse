@@ -23,7 +23,7 @@ class Connection
 
 private:
 
-	uint8_t buffer[CONFIG_CONNECTION_BUFFER_SIZE];
+	uint8_t *buffer;
 	uint32_t connection_fd;
 	struct sockaddr_in address;
 
@@ -34,11 +34,11 @@ public:
 
 	uint32_t get_fd();
 
-	Event<tuple<Connection, string>> on_data_received;
-
 	void detach();
 	void send(string message);
 	void close();
+
+	~Connection();
 };
 
 #endif /* INC_MODEL_CONNECTION_HPP_ */
