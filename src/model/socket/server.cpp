@@ -40,7 +40,6 @@ void SocketServer::start()
 		throw ExceptionSocketNotAvailable();
 	}
 
-	// Forcefully attaching socket to the port 8080
 	if (setsockopt(this->socket_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &(this->socket_opt), sizeof(socket_opt)))
 	{
 		throw ExceptionPortInUse(this->port);
@@ -76,13 +75,12 @@ void SocketServer::start()
 		}
 
 		// Create and bind events
-		Connection connection(connection_fd, address);
-		connection.on_data_received = this->on_receive;
+		Connection *connection = new Connection(connection_fd, address);
 
-		this->connections_add(connection);
+		this->connections_add(*connection);
 
-		this->on_connection_open.fire(connection);
-		connection.detach();
+		this->on_connection_open.fire(*connection);
+		connection->detach();
 	}
 }
 

@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <map>
 #include <list>
-#include <tuple>
 
 #include <unistd.h>
 #include <stdio.h>
@@ -47,7 +46,6 @@ public:
 	void stop();
 	list<uint32_t> get_connections();
 
-	Event<tuple<Connection, string>> on_receive;
 	Event<Connection> on_connection_open;
 	Event<Connection> on_connection_close;
 
