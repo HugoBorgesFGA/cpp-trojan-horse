@@ -13,11 +13,12 @@ template <class T>
 
 class Event
 {
+	using map_of_events_t = map<uint32_t, function<void(T &args)>>;
 
 private:
 
 	uint32_t seed;
-	map<uint32_t, function<void(T &owner)>> subscriptions;
+	map_of_events_t subscriptions;
 
 public:
 
@@ -27,13 +28,18 @@ public:
 		this->seed = 0;
 	}
 
-	uint32_t add(function<void(T &owner)> handler)
+	uint32_t add(function<void(T &args)> handler)
 	{
 
 		uint32_t subscription_memo = this->seed++;
 		subscriptions[subscription_memo] = handler;
 
 		return subscription_memo;
+	}
+
+	void remove(uint32_t subscription){
+
+		subscriptions.erase(subscription);
 	}
 
 	void fire(T arg)
