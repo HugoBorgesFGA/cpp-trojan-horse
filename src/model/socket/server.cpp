@@ -75,11 +75,16 @@ void SocketServer::start()
 		}
 
 		// Create and bind events
-		Connection *connection = new Connection(connection_fd, address);
+		Connection *connection = new Connection(
+				connection_fd,
+				address,
+				on_data_received,
+				on_connection_close
+		);
 
 		this->connections_add(*connection);
 
-		this->on_connection_open.fire(*connection);
+		this->on_connection_open.fire(Connection::getConnectionInfo(*connection));
 		connection->detach();
 	}
 }

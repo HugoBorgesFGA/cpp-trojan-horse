@@ -9,7 +9,24 @@
 
 #include <iostream>
 
-Connection::Connection(uint32_t connection_fd, struct sockaddr_in address)
+struct ConnectionInfo Connection::getConnectionInfo(Connection &connection){
+
+	struct ConnectionInfo result = {
+		.connection = connection.get_fd(),
+		.client_ip = "127.0.0.1"
+	};
+
+	return result;
+}
+
+Connection::Connection(
+		uint32_t connection_fd,
+		struct sockaddr_in address,
+		Event<DataReceivedArgs> &on_data_received,
+		Event<ConnectionInfo> &on_connection_close
+) :
+on_data_received(on_data_received),
+on_connection_close(on_connection_close)
 {
 
 	this->buffer = new uint8_t[CONFIG_CONNECTION_BUFFER_SIZE];
@@ -41,7 +58,6 @@ void Connection::_thread_function()
 
 		uint32_t read_bytes = read(this->get_fd() , this->buffer, CONFIG_CONNECTION_BUFFER_SIZE);
 		if (read_bytes == 0) {
-			cout << "Ending thread..." << endl;
 			break;
 		}
 
@@ -50,8 +66,16 @@ void Connection::_thread_function()
 		string received = string((char *) this->buffer);
 		this->buffer[0] = '\0';
 
-		cout << "Connection (" << this->get_fd() << ") received: " << received;
+		struct DataReceivedArgs args = {
+				.connection_info = getConnectionInfo(*this),
+				.message = received
+		};
+
+		this->on_data_received.fire(args);
 	}
+
+	this->on_connection_close.fire(getConnectionInfo(*this));
+	delete this;
 }
 
 void Connection::detach()

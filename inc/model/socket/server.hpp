@@ -46,8 +46,9 @@ public:
 	void stop();
 	list<uint32_t> get_connections();
 
-	Event<Connection> on_connection_open;
-	Event<Connection> on_connection_close;
+	Event<DataReceivedArgs> on_data_received;
+	Event<ConnectionInfo> on_connection_open;
+	Event<ConnectionInfo> on_connection_close;
 
 	Event<string> on_start_listening;
 	Event<string> on_stop_listening;
