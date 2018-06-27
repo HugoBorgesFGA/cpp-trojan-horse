@@ -18,6 +18,17 @@
 
 using namespace std;
 
+struct ConnectionInfo{
+
+	uint32_t connection;
+	string client_ip;
+};
+
+struct DataReceivedArgs {
+	struct ConnectionInfo connection_info;
+	string message;
+};
+
 class Connection
 {
 
@@ -27,16 +38,26 @@ private:
 	uint32_t connection_fd;
 	struct sockaddr_in address;
 
+	Event<DataReceivedArgs> &on_data_received;
+	Event<ConnectionInfo> &on_connection_close;
 	void _thread_function();
+
 public:
 
-	Connection(uint32_t connection_fd, struct sockaddr_in address);
+	Connection(
+			uint32_t connection_fd,
+			struct sockaddr_in address,
+			Event<DataReceivedArgs> &on_data_received,
+			Event<ConnectionInfo> &on_connection_close
+	);
 
 	uint32_t get_fd();
 
 	void detach();
 	void send(string message);
 	void close();
+
+	static struct ConnectionInfo getConnectionInfo(Connection &connection);
 
 	~Connection();
 };
