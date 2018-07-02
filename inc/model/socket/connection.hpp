@@ -13,7 +13,6 @@
 #include <netinet/in.h>
 #include <string.h>
 
-#include "config.hpp"
 #include "model/event.hpp"
 
 using namespace std;
@@ -41,6 +40,8 @@ private:
 	Event<DataReceivedArgs> &on_data_received;
 	Event<ConnectionInfo> &on_connection_close;
 	void _thread_function();
+
+	const uint32_t connections_buffer_size = 1024;
 
 public:
 

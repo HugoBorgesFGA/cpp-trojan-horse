@@ -29,7 +29,7 @@ on_data_received(on_data_received),
 on_connection_close(on_connection_close)
 {
 
-	this->buffer = new uint8_t[CONFIG_CONNECTION_BUFFER_SIZE];
+	this->buffer = new uint8_t[connections_buffer_size];
 	this->connection_fd = connection_fd;
 	this->address = address;
 }
@@ -56,7 +56,7 @@ void Connection::_thread_function()
 {
 	while(true){
 
-		uint32_t read_bytes = read(this->get_fd() , this->buffer, CONFIG_CONNECTION_BUFFER_SIZE);
+		uint32_t read_bytes = read(this->get_fd() , this->buffer, connections_buffer_size);
 		if (read_bytes == 0) {
 			break;
 		}
